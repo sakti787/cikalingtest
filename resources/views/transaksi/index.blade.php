@@ -4,82 +4,7 @@
 @section('page-title', 'Input Transaksi')
 
 @section('content')
-<div x-data="{
-    products: @json($products),
-    filteredProducts: [],
-    cart: [],
-    search: '',
-    selectedCategory: '',
-    
-    init() {
-        this.filteredProducts = this.products;
-    },
-    
-    filterProducts() {
-        this.filteredProducts = this.products.filter(p => {
-            const matchSearch = p.name.toLowerCase()
-                .includes(this.search.toLowerCase());
-            const matchCat = !this.selectedCategory || 
-                p.category === this.selectedCategory;
-            return matchSearch && matchCat;
-        });
-    },
-    
-    addToCart(product) {
-        if (product.stock === 0) return;
-        const existing = this.cart.find(i => i.id === product.id);
-        if (existing) {
-            if (existing.qty < product.stock) existing.qty++;
-        } else {
-            this.cart.push({
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                buy_price: product.buy_price,
-                stock: product.stock,
-                category: product.category,
-                rack_code: product.rack_code,
-                qty: 1
-            });
-        }
-    },
-    
-    removeFromCart(id) {
-        this.cart = this.cart.filter(i => i.id !== id);
-    },
-    
-    increaseQty(item) {
-        const product = this.products.find(p => p.id === item.id);
-        if (item.qty < product.stock) item.qty++;
-    },
-    
-    decreaseQty(item) {
-        if (item.qty > 1) item.qty--;
-        else this.removeFromCart(item.id);
-    },
-    
-    get totalItems() { 
-        return this.cart.reduce((sum, item) => sum + item.qty, 0); 
-    },
-    get subtotal() { 
-        return this.cart.reduce((s, i) => s + i.qty * i.price, 0);
-    },
-    get total() { 
-        return this.subtotal; 
-    },
-    
-    formatRp(n) {
-        return 'Rp ' + Number(n).toLocaleString('id-ID');
-    },
-    
-    resetCart() {
-        if (confirm('Batalkan transaksi ini?')) this.cart = [];
-    },
-    
-    processPayment(printNota) {
-        alert('Payment coming next prompt');
-    }
-}" class="flex flex-col lg:flex-row gap-6 h-[calc(100vh-160px)]">
+<div x-data="transactionCart" class="flex flex-col lg:flex-row gap-6 h-[calc(100vh-160px)]">
 
     <!-- LEFT PANEL: Product Grid & Search -->
     <div class="flex-1 flex flex-col min-w-0 h-full">
@@ -281,4 +206,87 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('transactionCart', () => ({
+            products: @json($products),
+            filteredProducts: [],
+            cart: [],
+            search: '',
+            selectedCategory: '',
+            
+            init() {
+                this.filteredProducts = this.products;
+            },
+            
+            filterProducts() {
+                this.filteredProducts = this.products.filter(p => {
+                    const matchSearch = p.name.toLowerCase()
+                        .includes(this.search.toLowerCase());
+                    const matchCat = !this.selectedCategory || 
+                        p.category === this.selectedCategory;
+                    return matchSearch && matchCat;
+                });
+            },
+            
+            addToCart(product) {
+                if (product.stock === 0) return;
+                const existing = this.cart.find(i => i.id === product.id);
+                if (existing) {
+                    if (existing.qty < product.stock) existing.qty++;
+                } else {
+                    this.cart.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        buy_price: product.buy_price,
+                        stock: product.stock,
+                        category: product.category,
+                        rack_code: product.rack_code,
+                        qty: 1
+                    });
+                }
+            },
+            
+            removeFromCart(id) {
+                this.cart = this.cart.filter(i => i.id !== id);
+            },
+            
+            increaseQty(item) {
+                const product = this.products.find(p => p.id === item.id);
+                if (item.qty < product.stock) item.qty++;
+            },
+            
+            decreaseQty(item) {
+                if (item.qty > 1) item.qty--;
+                else this.removeFromCart(item.id);
+            },
+            
+            get totalItems() { 
+                return this.cart.reduce((sum, item) => sum + item.qty, 0); 
+            },
+            get subtotal() { 
+                return this.cart.reduce((s, i) => s + i.qty * i.price, 0);
+            },
+            get total() { 
+                return this.subtotal; 
+            },
+            
+            formatRp(n) {
+                return 'Rp ' + Number(n).toLocaleString('id-ID');
+            },
+            
+            resetCart() {
+                if (confirm('Batalkan transaksi ini?')) this.cart = [];
+            },
+            
+            processPayment(printNota) {
+                alert('Payment coming next prompt');
+            }
+        }));
+    });
+</script>
+@endpush
 @endsection
