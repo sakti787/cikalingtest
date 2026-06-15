@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('transactions', function (Blueprint $table) {
+            $table->increments('transaction_id');
+            $table->unsignedInteger('kasir_id');
+            $table->timestamp('transaction_date')->useCurrent();
+            $table->decimal('total_amount', 15, 2);
+            $table->boolean('is_special_price')->default(false);
+            $table->boolean('printed_nota')->default(false);
+            $table->timestamp('created_at')->useCurrent();
+
+            $table->foreign('kasir_id')
+                  ->references('user_id')->on('users');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('transactions');
+    }
+};
