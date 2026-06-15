@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -94,6 +95,18 @@ class LaporanController extends Controller
     public function exportPdf(Request $request)
     {
         $bulan = $request->get('bulan', now()->format('Y-m'));
-        return response('PDF Export Stub for ' . $bulan, 200, ['Content-Type' => 'application/pdf']);
+        $data  = $this->getLaporanData($bulan);
+        $bulanLabel = Carbon::createFromFormat('Y-m', $bulan)
+            ->translatedFormat('F Y');
+        $printedBy = auth()->user()->username;
+        $printedAt = now()->format('d/m/Y H:i');
+        
+        $pdf = Pdf::loadView('laporan.pdf', 
+            $data + compact('bulanLabel', 'printedBy', 'printedAt'));
+        $pdf->setPaper('A4', 'portrait');
+        
+        return $pdf->download(
+            'Laporan_' . str_replace('-', '_', $bulan) . '_TokRukunJaya.pdf'
+        );
     }
 }
