@@ -2,31 +2,47 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
+#[Table(name: 'users', key: 'user_id', timestamps: true)]
+#[Fillable(['username', 'password_hash', 'role'])]
+#[Hidden(['password_hash'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    /**
+     * The name of the "updated at" column.
+     *
+     * @var string|null
+     */
+    const UPDATED_AT = null;
 
     /**
-     * Get the attributes that should be cast.
+     * Get the password for the user.
      *
-     * @return array<string, string>
+     * @return string
      */
-    protected function casts(): array
+    public function getAuthPassword(): string
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->password_hash;
+    }
+
+    /**
+     * Get the transactions for the user (as cashier).
+     */
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'kasir_id', 'user_id');
+    }
+
+    /**
+     * Get the price history changed by the user.
+     */
+    public function priceHistories(): HasMany
+    {
+        return $this->hasMany(PriceHistory::class, 'changed_by', 'user_id');
     }
 }
