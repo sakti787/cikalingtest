@@ -30,6 +30,7 @@ class Transaction extends Model
             'is_special_price' => 'boolean',
             'printed_nota' => 'boolean',
             'total_amount' => 'decimal:2',
+            'transaction_date' => 'datetime',
         ];
     }
 
