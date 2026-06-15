@@ -2,13 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
+    /**
+     * Display a listing of products with search and filters.
+     */
+    public function index(Request $request)
     {
-        return view('produk.index');
+        $query = Product::with(['category', 'rack']);
+        
+        if ($request->search) {
+            $query->where('product_name', 'like', '%' . $request->search . '%');
+        }
+        
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+        
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
+        
+        $products = $query->orderBy('product_name')
+            ->paginate(10)
+            ->withQueryString();
+            
+        $categories = Category::orderBy('category_name')->get();
+        
+        return view('produk.index', compact('products', 'categories'));
     }
 
     public function create()
