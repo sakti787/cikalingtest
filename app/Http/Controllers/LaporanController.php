@@ -2,17 +2,98 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Transaction;
+use App\Models\TransactionItem;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LaporanController extends Controller
 {
-    public function index()
+    /**
+     * Helper to compute all reporting metrics for a given month.
+     */
+    private function getLaporanData(string $bulan): array
     {
-        return view('laporan.index');
+        $start = Carbon::createFromFormat('Y-m', $bulan)->startOfMonth();
+        $end   = Carbon::createFromFormat('Y-m', $bulan)->endOfMonth();
+        $prevStart = $start->copy()->subMonth()->startOfMonth();
+        $prevEnd   = $start->copy()->subMonth()->endOfMonth();
+        
+        // QUERY 1 — daily breakdown
+        $harian = Transaction::whereBetween('transaction_date', [$start, $end])
+            ->select(
+                DB::raw('DATE(transaction_date) as tanggal'),
+                DB::raw('COUNT(*) as jumlah_transaksi'),
+                DB::raw('SUM(total_amount) as omset')
+            )
+            ->groupBy('tanggal')
+            ->orderBy('tanggal')
+            ->get();
+            
+        foreach ($harian as $row) {
+            $hpp = TransactionItem::whereHas('transaction', fn($q) => 
+                $q->whereDate('transaction_date', $row->tanggal))
+                ->join('products', 'transaction_items.product_id', '=', 'products.product_id')
+                ->sum(DB::raw('transaction_items.quantity * products.buy_price'));
+                
+            $row->hpp = (float) $hpp;
+            $row->profit = (float) $row->omset - $hpp;
+            $row->margin = $row->omset > 0 
+                ? round($row->profit / $row->omset * 100, 1) : 0;
+        }
+
+        // QUERY 2 — summary
+        $totalOmset   = $harian->sum('omset');
+        $totalProfit  = $harian->sum('profit');
+        $totalTrx     = Transaction::whereBetween('transaction_date', [$start, $end])->count();
+        $avgMargin    = $harian->avg('margin') ?? 0;
+        
+        $prevOmset    = Transaction::whereBetween('transaction_date', [$prevStart, $prevEnd])
+            ->sum('total_amount');
+            
+        $omsetChange  = $prevOmset > 0 
+            ? (($totalOmset - $prevOmset) / $prevOmset * 100) : null;
+
+        // QUERY 3 — profit by category
+        $profitKategori = Category::withSum([
+            'products as total_profit' => function($q) use ($start, $end) {
+                $q->join('transaction_items', 'products.product_id', '=', 'transaction_items.product_id')
+                  ->join('transactions', 'transaction_items.transaction_id', '=', 'transactions.transaction_id')
+                  ->whereBetween('transactions.transaction_date', [$start, $end]);
+            }
+        ], DB::raw('(transaction_items.unit_price - products.buy_price) * transaction_items.quantity'))->get();
+
+        return compact(
+            'harian', 
+            'totalOmset', 
+            'totalProfit', 
+            'totalTrx', 
+            'avgMargin', 
+            'prevOmset', 
+            'omsetChange', 
+            'profitKategori'
+        );
     }
 
-    public function exportPdf()
+    /**
+     * Display the monthly financial report dashboard.
+     */
+    public function index(Request $request)
     {
-        return response('PDF Export Stub', 200, ['Content-Type' => 'application/pdf']);
+        $bulan = $request->get('bulan', now()->format('Y-m'));
+        $data  = $this->getLaporanData($bulan);
+        
+        return view('laporan.index', $data + ['bulan' => $bulan]);
+    }
+
+    /**
+     * Export the financial report as a PDF document.
+     */
+    public function exportPdf(Request $request)
+    {
+        $bulan = $request->get('bulan', now()->format('Y-m'));
+        return response('PDF Export Stub for ' . $bulan, 200, ['Content-Type' => 'application/pdf']);
     }
 }
