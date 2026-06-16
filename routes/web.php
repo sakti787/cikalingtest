@@ -21,6 +21,18 @@ Route::post('/login', [AuthController::class, 'login'])
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')->middleware('auth');
 
+Route::middleware(['auth', 'role:pemilik,kasir'])
+    ->group(function () {
+        Route::get('/transaksi', [TransactionController::class, 'index'])
+            ->name('transaksi.index');
+        Route::post('/transaksi', [TransactionController::class, 'store'])
+            ->name('transaksi.store');
+        Route::get('/transaksi/{id}/nota', [TransactionController::class, 'nota'])
+            ->name('transaksi.nota');
+        Route::get('/produk/cari', [ProductController::class, 'search'])
+            ->name('produk.search');
+    });
+
 Route::middleware(['auth', 'role:pemilik'])
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -40,18 +52,6 @@ Route::middleware(['auth', 'role:pemilik'])
             ->name('stok.update-min');
         Route::post('/stok/dismiss/{id}', [StokController::class, 'dismissAlert'])
             ->name('stok.dismiss');
-    });
-
-Route::middleware(['auth', 'role:pemilik,kasir'])
-    ->group(function () {
-        Route::get('/transaksi', [TransactionController::class, 'index'])
-            ->name('transaksi.index');
-        Route::post('/transaksi', [TransactionController::class, 'store'])
-            ->name('transaksi.store');
-        Route::get('/transaksi/{id}/nota', [TransactionController::class, 'nota'])
-            ->name('transaksi.nota');
-        Route::get('/produk/cari', [ProductController::class, 'search'])
-            ->name('produk.search');
     });
 
 Route::middleware(['auth', 'role:pemilik,kasir,gudang'])
