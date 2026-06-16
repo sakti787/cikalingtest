@@ -143,6 +143,18 @@ class ProductController extends Controller
 
     public function search(Request $request)
     {
-        return view('produk.search');
+        $q = $request->get('q', '');
+        $results = collect();
+        
+        if ($q !== '') {
+            $results = Product::with(['category', 'rack'])
+                ->where('is_active', true)
+                ->where('product_name', 'like', '%' . $q . '%')
+                ->orderBy('product_name')
+                ->limit(20)
+                ->get();
+        }
+        
+        return view('produk.cari', compact('results', 'q'));
     }
 }
