@@ -13,7 +13,7 @@
     </div>
 
     <!-- Centered Card -->
-    <div class="card bg-white shadow-sm border border-slate-200" x-data="{ minStock: {{ old('min_stock', $product->min_stock) ?? 0 }} }">
+    <div class="card bg-white shadow-sm border border-slate-200" x-data="{ minStock: {{ old('min_stock', $product->min_stock) ?? 0 }}, loading: false }">
         
         <!-- Product Info Header -->
         <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 mb-6">
@@ -65,7 +65,7 @@
         @endif
 
         <!-- Update Form -->
-        <form action="{{ route('stok.update-min', $product->product_id) }}" method="POST" class="space-y-5 p-6 pt-0">
+        <form action="{{ route('stok.update-min', $product->product_id) }}" method="POST" class="space-y-5 p-6 pt-0" @submit="loading = true">
             @csrf
 
             <!-- Stok Minimum Baru -->
@@ -111,10 +111,8 @@
                     Batal
                 </a>
                 <button type="submit" 
-                        x-data="{ loading: false }"
-                        x-on:click="loading = true"
                         x-bind:disabled="loading"
-                        x-bind:class="loading ? 'opacity-75' : ''"
+                        x-bind:class="loading ? 'opacity-75 cursor-not-allowed' : ''"
                         class="btn-primary cursor-pointer">
                     <span x-text="loading ? 'Menyimpan...' : 'Simpan Perubahan'">Simpan Perubahan</span>
                 </button>

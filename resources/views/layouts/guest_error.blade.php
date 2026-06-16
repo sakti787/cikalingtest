@@ -12,8 +12,11 @@
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
+        html {
+            font-size: 0.9375rem;
+        }
         html.zoom-enlarged {
-            zoom: 1.12;
+            font-size: 1.125rem;
         }
     </style>
 </head>

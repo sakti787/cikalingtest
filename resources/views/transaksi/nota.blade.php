@@ -131,6 +131,23 @@
         <div class="receipt-double-separator"></div>
 
         <!-- Total -->
+        @php
+            $itemsSubtotal = $transaction->items->sum('subtotal');
+            $discount = $itemsSubtotal - $transaction->total_amount;
+        @endphp
+
+        @if($discount > 0)
+            <div class="flex justify-between items-center text-slate-700 py-0.5">
+                <span>Subtotal:</span>
+                <span>Rp {{ number_format($itemsSubtotal, 0, ',', '.') }}</span>
+            </div>
+            <div class="flex justify-between items-center text-red-600 font-bold py-0.5">
+                <span>Diskon Spesial:</span>
+                <span>-Rp {{ number_format($discount, 0, ',', '.') }}</span>
+            </div>
+            <div class="receipt-separator"></div>
+        @endif
+
         <div class="flex justify-between items-center font-bold text-sm text-slate-900 py-1">
             <span>TOTAL:</span>
             <span>Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</span>

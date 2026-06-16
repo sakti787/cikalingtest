@@ -16,8 +16,11 @@
     @vite(['resources/css/app.css'])
     <style>
         [x-cloak] { display: none !important; }
+        html {
+            font-size: 0.9375rem;
+        }
         html.zoom-enlarged {
-            zoom: 1.12;
+            font-size: 1.125rem;
         }
     </style>
 </head>
@@ -113,7 +116,7 @@
             @endif
 
             <!-- Form (POST /login) -->
-            <form action="{{ route('login.submit') }}" method="POST" class="space-y-5">
+            <form action="{{ route('login.submit') }}" method="POST" class="space-y-5" x-data="{ loading: false }" @submit="loading = true">
                 @csrf
                 
                 <div>
@@ -140,10 +143,8 @@
                 </div>
 
                 <button type="submit" 
-                        x-data="{ loading: false }"
-                        x-on:click="loading = true"
                         x-bind:disabled="loading"
-                        x-bind:class="loading ? 'opacity-75' : ''"
+                        x-bind:class="loading ? 'opacity-75 cursor-not-allowed' : ''"
                         class="btn-primary w-full justify-center mt-2 cursor-pointer">
                     <span x-text="loading ? 'Masuk...' : 'Masuk ke Sistem'">Masuk ke Sistem</span>
                 </button>

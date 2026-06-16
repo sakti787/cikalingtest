@@ -28,7 +28,7 @@
     @endif
 
     <!-- Form Card -->
-    <div class="card bg-white shadow-sm border border-slate-200">
+    <div class="card bg-white shadow-sm border border-slate-200" x-data="{ loading: false }">
         <!-- Card Header with product details -->
         <div class="flex items-center gap-3 pb-5 mb-5 border-b border-slate-100">
             <h2 class="text-2xl font-bold text-slate-900">{{ $product->product_name }}</h2>
@@ -52,7 +52,7 @@
             @endif
         </div>
 
-        <form action="{{ route('produk.update', $product->product_id) }}" method="POST">
+        <form action="{{ route('produk.update', $product->product_id) }}" method="POST" @submit="loading = true">
             @csrf
             @method('PUT')
             

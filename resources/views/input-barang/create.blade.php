@@ -28,7 +28,7 @@
     @endif
 
     <!-- 2-Column Form Layout -->
-    <form action="{{ route('barang.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+    <form action="{{ route('barang.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl" @submit="loading = true">
         @csrf
 
         <!-- Hidden inputs -->
@@ -83,7 +83,9 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <span class="text-slate-400 text-sm font-bold">Rp</span>
                     </div>
-                    <input type="number" id="buy_price" name="buy_price" step="500" x-model.number="buyPrice" required 
+                    <input type="hidden" name="buy_price" :value="buyPrice">
+                    <input type="text" id="buy_price" x-model="buyPriceFormatted" 
+                           @input="buyPriceFormatted = formatNumberInput($event.target.value); buyPrice = parseNumberInput(buyPriceFormatted)" required 
                            class="input-field pl-9" placeholder="0">
                 </div>
                 @error('buy_price')
@@ -181,8 +183,7 @@
                 <button type="submit" 
                         class="btn-primary w-full justify-center min-h-[44px] cursor-pointer"
                         x-bind:disabled="!selectedCategoryId || loading"
-                        x-bind:class="loading ? 'opacity-75' : ''"
-                        x-on:click="loading = true">
+                        x-bind:class="loading ? 'opacity-75 cursor-not-allowed' : ''">
                     <span x-text="loading ? 'Menyimpan...' : 'Simpan Barang Baru'">Simpan Barang Baru</span>
                 </button>
                 <a href="{{ route('rak.index') }}" class="btn-secondary w-full justify-center min-h-[44px]">
@@ -205,7 +206,26 @@
             useRecommended: true,
             racks: @json($racks),
             buyPrice: 0,
+            buyPriceFormatted: '',
             loading: false,
+            
+            init() {
+                const initialBuyPrice = '{{ old('buy_price', '') }}';
+                if (initialBuyPrice) {
+                    this.buyPrice = Number(initialBuyPrice) || 0;
+                    this.buyPriceFormatted = this.formatNumberInput(this.buyPrice);
+                }
+            },
+
+            formatNumberInput(value) {
+                let clean = String(value).replace(/\D/g, '');
+                if (!clean) return '';
+                return Number(clean).toLocaleString('id-ID');
+            },
+            parseNumberInput(formattedValue) {
+                let clean = String(formattedValue).replace(/\D/g, '');
+                return Number(clean) || 0;
+            },
             
             get recommendedRacks() {
                 if (!this.selectedCategoryId) return [];

@@ -49,11 +49,12 @@
         <!-- Harga Beli -->
         <div>
             <label for="buy_price" class="form-label">Harga Beli</label>
-            <div class="relative">
+            <div class="relative" x-data="priceInput({ initialValue: '{{ old('buy_price', isset($product) ? intval($product->buy_price) : '') }}' })">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 font-medium">
                     Rp
                 </div>
-                <input type="number" step="500" min="0" id="buy_price" name="buy_price" value="{{ old('buy_price', isset($product) ? intval($product->buy_price) : '') }}" required class="input-field pl-12" placeholder="0">
+                <input type="hidden" name="buy_price" :value="rawVal">
+                <input type="text" id="buy_price" x-model="formattedVal" @input="onInput($event.target.value)" required class="input-field pl-12" placeholder="0">
             </div>
             @error('buy_price')
                 <p class="form-error">{{ $message }}</p>
@@ -63,11 +64,12 @@
         <!-- Harga Jual -->
         <div>
             <label for="sell_price" class="form-label">Harga Jual</label>
-            <div class="relative">
+            <div class="relative" x-data="priceInput({ initialValue: '{{ old('sell_price', isset($product) ? intval($product->sell_price) : '') }}' })">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 font-medium">
                     Rp
                 </div>
-                <input type="number" step="500" min="0" id="sell_price" name="sell_price" value="{{ old('sell_price', isset($product) ? intval($product->sell_price) : '') }}" required class="input-field pl-12" placeholder="0">
+                <input type="hidden" name="sell_price" :value="rawVal">
+                <input type="text" id="sell_price" x-model="formattedVal" @input="onInput($event.target.value)" required class="input-field pl-12" placeholder="0">
             </div>
             @if(isset($product))
                 @php
@@ -112,10 +114,8 @@
             Batal
         </a>
         <button type="submit" 
-                x-data="{ loading: false }"
-                x-on:click="loading = true"
                 x-bind:disabled="loading"
-                x-bind:class="loading ? 'opacity-75' : ''"
+                x-bind:class="loading ? 'opacity-75 cursor-not-allowed' : ''"
                 class="btn-primary cursor-pointer">
             <span x-text="loading ? 'Menyimpan...' : 'Simpan Produk'">Simpan Produk</span>
         </button>

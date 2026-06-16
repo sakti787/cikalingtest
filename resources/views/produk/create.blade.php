@@ -28,8 +28,8 @@
     @endif
 
     <!-- Form Card -->
-    <div class="card bg-white shadow-sm border border-slate-200">
-        <form action="{{ route('produk.store') }}" method="POST">
+    <div class="card bg-white shadow-sm border border-slate-200" x-data="{ loading: false }">
+        <form action="{{ route('produk.store') }}" method="POST" @submit="loading = true">
             @csrf
             
             @include('produk._form')

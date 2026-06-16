@@ -48,6 +48,7 @@ class TransactionController extends Controller
             'items.*.unit_price' => 'required|numeric|min:0',
             'printed_nota' => 'required|boolean',
             'is_special_price' => 'nullable|boolean',
+            'discount' => 'nullable|numeric|min:0',
         ]);
 
         try {
@@ -61,17 +62,21 @@ class TransactionController extends Controller
                 }
 
                 // 2. Calculate total
-                $total = 0;
+                $itemsTotal = 0;
                 foreach ($request->items as $item) {
-                    $total += $item['quantity'] * $item['unit_price'];
+                    $itemsTotal += $item['quantity'] * $item['unit_price'];
                 }
+                
+                $discount = floatval($request->get('discount', 0));
+                $total = max(0, $itemsTotal - $discount);
+                $isSpecial = $request->is_special_price || $discount > 0;
 
                 // 3. Create transaction
                 $transaction = \App\Models\Transaction::create([
                     'kasir_id' => auth()->id(),
                     'transaction_date' => now(),
                     'total_amount' => $total,
-                    'is_special_price' => $request->is_special_price ?? false,
+                    'is_special_price' => $isSpecial,
                     'printed_nota' => $request->printed_nota,
                 ]);
 
