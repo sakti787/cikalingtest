@@ -62,12 +62,21 @@ class StokController extends Controller
 
     public function editMinStock($id)
     {
-        return view('stok.edit-min');
+        $product = Product::with('category')->findOrFail($id);
+        return view('stok.edit-min-stock', compact('product'));
     }
 
     public function updateMinStock(Request $request, $id)
     {
-        return redirect()->route('stok.index');
+        $product = Product::findOrFail($id);
+        $request->validate([
+            'min_stock' => 'required|integer|min:0|max:9999'
+        ]);
+        $old = $product->min_stock;
+        $product->update(['min_stock' => $request->min_stock]);
+        
+        return redirect()->route('stok.index')
+            ->with('success', "Min stok {$product->product_name} diubah dari {$old} → {$request->min_stock}.");
     }
 
     public function dismissAlert($id)
