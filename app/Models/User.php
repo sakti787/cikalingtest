@@ -20,6 +20,16 @@ class User extends Authenticatable
      */
     const UPDATED_AT = null;
 
+    protected $primaryKey = 'user_id';
+
+    /**
+     * Get the name of the unique identifier for the user.
+     */
+    public function getAuthIdentifierName(): string
+    {
+        return 'user_id';
+    }
+
     /**
      * Get the password for the user.
      *
@@ -28,6 +38,14 @@ class User extends Authenticatable
     public function getAuthPassword(): string
     {
         return $this->password_hash;
+    }
+
+    /**
+     * Get the column name for the "remember me" token.
+     */
+    public function getRememberTokenName(): ?string
+    {
+        return null;
     }
 
     /**

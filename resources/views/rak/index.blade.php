@@ -99,6 +99,11 @@
                     </div>
                 </template>
 
+                <!-- Filter Empty State -->
+                <div x-show="filteredRacks.length === 0" class="text-center py-12 text-slate-400 text-sm font-medium border border-dashed border-slate-200 rounded-xl" x-cloak>
+                    Tidak ada rak yang sesuai dengan kriteria filter.
+                </div>
+
                 <!-- Static Entrance + Cashier Gate -->
                 <div class="bg-slate-900 text-white text-center text-xs py-3 rounded-xl mt-6 font-bold tracking-wider uppercase shadow-sm">
                     🚪 Pintu Masuk / Area Kasir Utama

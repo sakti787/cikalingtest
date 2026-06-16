@@ -92,11 +92,8 @@
             @if($errors->any())
             <div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
                 <div class="flex items-center gap-2 mb-2 font-semibold text-red-950">
-                    <!-- Warning Icon -->
-                    <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"></path>
-                    </svg>
-                    <span>Kesalahan Masuk</span>
+                    <span>⚠️</span>
+                    <span>Terdapat {{ $errors->count() }} kesalahan:</span>
                 </div>
                 <ul class="list-disc list-inside space-y-1 text-red-700">
                     @foreach($errors->all() as $error)
@@ -114,7 +111,7 @@
                     <label for="username" class="form-label">Username</label>
                     <input type="text" id="username" name="username" autocomplete="username" value="{{ old('username') }}" required class="input-field" placeholder="Masukkan username Anda">
                 </div>
-
+ 
                 <div>
                     <label for="password" class="form-label">Password</label>
                     <div class="relative">
@@ -133,11 +130,13 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary w-full justify-center mt-2">
-                    <span>Masuk ke Sistem</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"></path>
-                    </svg>
+                <button type="submit" 
+                        x-data="{ loading: false }"
+                        x-on:click="loading = true"
+                        x-bind:disabled="loading"
+                        x-bind:class="loading ? 'opacity-75' : ''"
+                        class="btn-primary w-full justify-center mt-2 cursor-pointer">
+                    <span x-text="loading ? 'Masuk...' : 'Masuk ke Sistem'">Masuk ke Sistem</span>
                 </button>
             </form>
 

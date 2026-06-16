@@ -111,8 +111,13 @@
         <a href="{{ isset($product) ? 'javascript:history.back()' : route('produk.index') }}" class="btn-secondary">
             Batal
         </a>
-        <button type="submit" class="btn-primary cursor-pointer">
-            Simpan Produk
+        <button type="submit" 
+                x-data="{ loading: false }"
+                x-on:click="loading = true"
+                x-bind:disabled="loading"
+                x-bind:class="loading ? 'opacity-75' : ''"
+                class="btn-primary cursor-pointer">
+            <span x-text="loading ? 'Menyimpan...' : 'Simpan Produk'">Simpan Produk</span>
         </button>
     </div>
 

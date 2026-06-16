@@ -49,8 +49,23 @@
             </div>
         </div>
 
+        <!-- Validation error summary -->
+        @if($errors->any())
+            <div class="p-4 mx-6 mt-6 bg-red-50 border border-red-200 text-red-800 rounded-xl">
+                <div class="flex items-center gap-2 font-bold text-sm mb-2">
+                    <span>⚠️</span>
+                    <span>Terdapat {{ $errors->count() }} kesalahan:</span>
+                </div>
+                <ul class="list-disc list-inside text-xs space-y-1">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <!-- Update Form -->
-        <form action="{{ route('stok.update-min', $product->product_id) }}" method="POST" class="space-y-5">
+        <form action="{{ route('stok.update-min', $product->product_id) }}" method="POST" class="space-y-5 p-6 pt-0">
             @csrf
 
             <!-- Stok Minimum Baru -->
@@ -95,8 +110,13 @@
                 <a href="{{ route('stok.index') }}" class="btn-secondary">
                     Batal
                 </a>
-                <button type="submit" class="btn-primary cursor-pointer">
-                    Simpan Perubahan
+                <button type="submit" 
+                        x-data="{ loading: false }"
+                        x-on:click="loading = true"
+                        x-bind:disabled="loading"
+                        x-bind:class="loading ? 'opacity-75' : ''"
+                        class="btn-primary cursor-pointer">
+                    <span x-text="loading ? 'Menyimpan...' : 'Simpan Perubahan'">Simpan Perubahan</span>
                 </button>
             </div>
 

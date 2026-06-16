@@ -12,6 +12,21 @@
         <p class="text-sm text-slate-500 mt-1">Tambahkan produk baru ke dalam sistem pergudangan dan atur penempatan raknya.</p>
     </div>
 
+    <!-- Validation error summary -->
+    @if($errors->any())
+        <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl max-w-4xl mb-4">
+            <div class="flex items-center gap-2 font-bold text-sm mb-2">
+                <span>⚠️</span>
+                <span>Terdapat {{ $errors->count() }} kesalahan:</span>
+            </div>
+            <ul class="list-disc list-inside text-xs space-y-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <!-- 2-Column Form Layout -->
     <form action="{{ route('barang.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
         @csrf
@@ -165,8 +180,10 @@
             <div class="space-y-2 pt-4 border-t border-slate-100 shrink-0">
                 <button type="submit" 
                         class="btn-primary w-full justify-center min-h-[44px] cursor-pointer"
-                        x-bind:disabled="!selectedCategoryId">
-                    Simpan Barang Baru
+                        x-bind:disabled="!selectedCategoryId || loading"
+                        x-bind:class="loading ? 'opacity-75' : ''"
+                        x-on:click="loading = true">
+                    <span x-text="loading ? 'Menyimpan...' : 'Simpan Barang Baru'">Simpan Barang Baru</span>
                 </button>
                 <a href="{{ route('rak.index') }}" class="btn-secondary w-full justify-center min-h-[44px]">
                     Batal
@@ -188,6 +205,7 @@
             useRecommended: true,
             racks: @json($racks),
             buyPrice: 0,
+            loading: false,
             
             get recommendedRacks() {
                 if (!this.selectedCategoryId) return [];

@@ -12,6 +12,21 @@
         <p class="text-sm text-slate-500 mt-1">Sesuaikan informasi produk di bawah ini.</p>
     </div>
 
+    <!-- Validation error summary -->
+    @if($errors->any())
+        <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl mb-6">
+            <div class="flex items-center gap-2 font-bold text-sm mb-2">
+                <span>⚠️</span>
+                <span>Terdapat {{ $errors->count() }} kesalahan:</span>
+            </div>
+            <ul class="list-disc list-inside text-xs space-y-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <!-- Form Card -->
     <div class="card bg-white shadow-sm border border-slate-200">
         <!-- Card Header with product details -->
