@@ -183,26 +183,61 @@
         <!-- Action checkout buttons -->
         <div class="px-5 pb-5 pt-2 bg-slate-50 space-y-2 shrink-0">
             <button x-on:click="processPayment(true)"
-                x-bind:disabled="cart.length === 0"
-                :class="cart.length === 0 ? 'opacity-50 cursor-not-allowed bg-green-400' : 'bg-green-600 hover:bg-green-700 active:bg-green-800'"
+                x-bind:disabled="cart.length === 0 || isProcessing"
+                :class="(cart.length === 0 || isProcessing) ? 'opacity-50 cursor-not-allowed bg-green-400' : 'bg-green-600 hover:bg-green-700 active:bg-green-800'"
                 class="btn-primary w-full justify-center min-h-[44px] cursor-pointer text-white font-semibold transition-all">
-                <span>💳 Bayar & Cetak Nota</span>
+                <span x-text="isProcessing ? 'Memproses...' : '💳 Bayar & Cetak Nota'">💳 Bayar & Cetak Nota</span>
             </button>
             
             <button x-on:click="processPayment(false)"
-                x-bind:disabled="cart.length === 0"
-                :class="cart.length === 0 ? 'opacity-50 cursor-not-allowed bg-slate-200 text-slate-400' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 active:bg-slate-300'"
+                x-bind:disabled="cart.length === 0 || isProcessing"
+                :class="(cart.length === 0 || isProcessing) ? 'opacity-50 cursor-not-allowed bg-slate-200 text-slate-400' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 active:bg-slate-300'"
                 class="btn-secondary w-full justify-center min-h-[44px] cursor-pointer font-semibold transition-all border border-slate-200">
-                <span>Bayar Tanpa Nota</span>
+                <span x-text="isProcessing ? 'Memproses...' : 'Bayar Tanpa Nota'">Bayar Tanpa Nota</span>
             </button>
             
             <button x-on:click="resetCart()"
-                x-show="cart.length > 0"
+                x-show="cart.length > 0 && !isProcessing"
                 class="block w-full text-center text-red-500 hover:text-red-700 text-xs font-bold pt-2 transition-colors cursor-pointer select-none">
                 Batalkan Transaksi
             </button>
         </div>
 
+    </div>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div class="fixed bottom-6 right-6 z-50 space-y-3">
+        <!-- Success Toast -->
+        <div x-show="showSuccess" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 translate-y-2"
+             class="bg-green-600 text-white rounded-xl shadow-lg px-5 py-4 flex items-center gap-3 max-w-sm border border-green-500"
+             x-cloak>
+            <span class="text-xl">✅</span>
+            <div>
+                <p x-text="successMessage" class="text-sm font-bold"></p>
+            </div>
+        </div>
+
+        <!-- Error Toast -->
+        <div x-show="showError" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 translate-y-2"
+             class="bg-red-600 text-white rounded-xl shadow-lg px-5 py-4 flex items-center gap-3 max-w-sm border border-red-500"
+             x-cloak>
+            <span class="text-xl">⚠️</span>
+            <div>
+                <p x-text="errorMessage" class="text-sm font-bold"></p>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -216,6 +251,11 @@
             cart: [],
             search: '',
             selectedCategory: '',
+            isProcessing: false,
+            showSuccess: false,
+            showError: false,
+            successMessage: '',
+            errorMessage: '',
             
             init() {
                 this.filteredProducts = this.products;
@@ -282,8 +322,61 @@
                 if (confirm('Batalkan transaksi ini?')) this.cart = [];
             },
             
-            processPayment(printNota) {
-                alert('Payment coming next prompt');
+            async processPayment(printNota) {
+                if (this.cart.length === 0) return;
+                this.isProcessing = true;
+                
+                try {
+                    const response = await fetch('/transaksi', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document
+                                .querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            items: this.cart.map(i => ({
+                                product_id: i.id,
+                                quantity: i.qty,
+                                unit_price: i.price,
+                            })),
+                            printed_nota: printNota,
+                            is_special_price: false,
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        if (printNota) {
+                            window.open('/transaksi/' + data.transaction_id + '/nota', '_blank');
+                        }
+                        this.cart = [];
+                        this.showSuccess = true;
+                        this.successMessage = 'Transaksi #' + data.transaction_id + ' berhasil!';
+                        setTimeout(() => this.showSuccess = false, 4000);
+                        
+                        // Refresh product stocks
+                        const res = await fetch('/transaksi?json=1');
+                        if (res.ok) {
+                            const newProducts = await res.json();
+                            this.products = newProducts;
+                            this.filterProducts();
+                        }
+                    } else {
+                        this.errorMessage = data.message;
+                        this.showError = true;
+                        setTimeout(() => this.showError = false, 5000);
+                    }
+                } catch(e) {
+                    this.errorMessage = 'Terjadi kesalahan koneksi.';
+                    this.showError = true;
+                    setTimeout(() => this.showError = false, 5000);
+                } finally {
+                    this.isProcessing = false;
+                }
             }
         }));
     });

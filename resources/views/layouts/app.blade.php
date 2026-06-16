@@ -5,12 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Toko Rukun Jaya')</title>
+    <!-- Screen Zoom Preference Script -->
+    <script>
+        if (localStorage.getItem('screen-zoom') === 'enlarged') {
+            document.documentElement.classList.add('zoom-enlarged');
+        }
+    </script>
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
+        html.zoom-enlarged {
+            zoom: 1.12;
+        }
     </style>
     @stack('scripts')
 </head>
@@ -161,6 +170,34 @@
                     <span class="block font-medium text-slate-900 truncate">{{ auth()->user()->username }}</span>
                     <span class="block text-xs text-slate-500 capitalize">{{ auth()->user()->role }}</span>
                 </div>
+            </div>
+
+            <!-- Screen Zoom Mode Selector -->
+            <div x-data="{ 
+                isEnlarged: localStorage.getItem('screen-zoom') === 'enlarged',
+                toggleZoom() {
+                    this.isEnlarged = !this.isEnlarged;
+                    if (this.isEnlarged) {
+                        localStorage.setItem('screen-zoom', 'enlarged');
+                        document.documentElement.classList.add('zoom-enlarged');
+                    } else {
+                        localStorage.setItem('screen-zoom', 'normal');
+                        document.documentElement.classList.remove('zoom-enlarged');
+                    }
+                }
+            }" class="w-full">
+                <button @click="toggleZoom()" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer select-none">
+                    <div class="flex items-center gap-2.5">
+                        <!-- monitor or zoom icon -->
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V15M12 9V15M15 9V15M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9Zm-3.75 0h7.5"></path>
+                        </svg>
+                        <span x-text="isEnlarged ? 'Layar: Diperbesar' : 'Layar: Normal'">Layar: Normal</span>
+                    </div>
+                    <span :class="isEnlarged ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'" class="text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <span x-text="isEnlarged ? '112%' : '100%'">100%</span>
+                    </span>
+                </button>
             </div>
             
             <!-- Logout Form -->

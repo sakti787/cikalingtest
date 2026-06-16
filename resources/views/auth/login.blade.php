@@ -4,12 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk - Toko Rukun Jaya</title>
+    <!-- Screen Zoom Preference Script -->
+    <script>
+        if (localStorage.getItem('screen-zoom') === 'enlarged') {
+            document.documentElement.classList.add('zoom-enlarged');
+        }
+    </script>
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Vite Assets -->
     @vite(['resources/css/app.css'])
     <style>
         [x-cloak] { display: none !important; }
+        html.zoom-enlarged {
+            zoom: 1.12;
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col md:flex-row">
