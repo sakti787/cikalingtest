@@ -45,6 +45,7 @@ class ProductController extends Controller
     {
         $categories = Category::orderBy('category_name')->get();
         $racks = Rack::with('category')
+            ->where('is_custom_box', false)
             ->orderBy('rack_code')
             ->get();
             
@@ -85,6 +86,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $categories = Category::orderBy('category_name')->get();
         $racks = Rack::with('category')
+            ->where('is_custom_box', false)
             ->orderBy('rack_code')
             ->get();
             

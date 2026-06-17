@@ -37,6 +37,8 @@ class DatabaseSeeder extends Seeder
             'category_id' => $aksesori->category_id,
             'capacity' => 50,
             'description' => 'Rak A1 untuk Aksesori Rumah Tangga',
+            'row_position' => 1,
+            'col_position' => 1,
         ]);
 
         $rackA2 = Rack::create([
@@ -44,6 +46,8 @@ class DatabaseSeeder extends Seeder
             'category_id' => $aksesori->category_id,
             'capacity' => 50,
             'description' => 'Rak A2 untuk Aksesori Rumah Tangga',
+            'row_position' => 1,
+            'col_position' => 3,
         ]);
 
         $rackB1 = Rack::create([
@@ -51,6 +55,8 @@ class DatabaseSeeder extends Seeder
             'category_id' => $material->category_id,
             'capacity' => 80,
             'description' => 'Rak B1 untuk Material Bangunan',
+            'row_position' => 2,
+            'col_position' => 1,
         ]);
 
         $rackB2 = Rack::create([
@@ -58,6 +64,8 @@ class DatabaseSeeder extends Seeder
             'category_id' => $material->category_id,
             'capacity' => 80,
             'description' => 'Rak B2 untuk Material Bangunan',
+            'row_position' => 2,
+            'col_position' => 3,
         ]);
 
         $rackC1 = Rack::create([
@@ -65,6 +73,8 @@ class DatabaseSeeder extends Seeder
             'category_id' => $sukuCadang->category_id,
             'capacity' => 60,
             'description' => 'Rak C1 untuk Suku Cadang Motor',
+            'row_position' => 3,
+            'col_position' => 1,
         ]);
 
         // 3. Users

@@ -16,6 +16,7 @@ class InputBarangController extends Controller
     {
         $categories = Category::orderBy('category_name')->get();
         $racks = Rack::with('category')
+            ->where('is_custom_box', false)
             ->withCount(['products as active_count' => fn($q) => 
                 $q->where('is_active', true)
             ])
@@ -25,7 +26,7 @@ class InputBarangController extends Controller
                 'id'          => $r->rack_id,
                 'code'        => $r->rack_code,
                 'category_id' => $r->category_id,
-                'category'    => $r->category->category_name,
+                'category'    => $r->category?->category_name ?? 'Kosong',
                 'capacity'    => $r->capacity,
                 'used'        => $r->active_count,
                 'available'   => $r->capacity - $r->active_count,

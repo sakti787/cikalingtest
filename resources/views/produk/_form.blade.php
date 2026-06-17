@@ -34,7 +34,7 @@
                 <option value="">-- Tanpa Rak --</option>
                 @foreach($racks as $rack)
                     <option value="{{ $rack->rack_id }}" {{ old('rack_id', $product->rack_id ?? '') == $rack->rack_id ? 'selected' : '' }}>
-                        {{ $rack->rack_code }} — {{ $rack->category->category_name }}
+                        {{ $rack->rack_code }} — {{ $rack->category?->category_name ?? 'Kosong' }}
                     </option>
                 @endforeach
             </select>

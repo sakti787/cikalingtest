@@ -58,6 +58,8 @@ Route::middleware(['auth', 'role:pemilik,kasir,gudang'])
     ->group(function () {
         Route::get('/peta-rak', [RakController::class, 'index'])
             ->name('rak.index');
+        Route::post('/peta-rak/save-layout', [RakController::class, 'saveLayout'])
+            ->name('rak.save-layout');
     });
 
 Route::middleware(['auth', 'role:pemilik,gudang'])
