@@ -20,9 +20,9 @@ class RakController extends Controller
               ->select('product_id', 'product_name', 'stock', 'rack_id');
         }])
         ->withCount(['products as active_products_count' => function($q) {
-            $q->where('is_active', true);
+            $q->where(['is_active' => true]);
         }])
-        ->orderBy('rack_code')
+        ->orderByRaw('rack_code')
         ->get()
         ->map(fn($r) => [
             'id'          => $r->rack_id,
@@ -41,7 +41,7 @@ class RakController extends Controller
             ])->toArray(),
         ]);
         
-        $categories = Category::orderBy('category_name')->get();
+        $categories = Category::orderByRaw('category_name')->get();
         
         return view('rak.index', compact('racks', 'categories'));
     }
@@ -65,7 +65,7 @@ class RakController extends Controller
         DB::beginTransaction();
         try {
             $layout = $validated['layout'];
-            $incomingIds = collect($layout)->pluck('id')->filter()->toArray();
+            $incomingIds = collect($layout)->map(fn($item) => $item['id'] ?? null)->filter()->toArray();
 
             // Delete racks/boxes that are not in the layout anymore
             Rack::whereNotIn('rack_id', $incomingIds)->delete();

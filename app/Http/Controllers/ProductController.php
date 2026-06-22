@@ -18,22 +18,22 @@ class ProductController extends Controller
         $query = Product::with(['category', 'rack']);
         
         if ($request->search) {
-            $query->where('product_name', 'like', '%' . $request->search . '%');
+            $query->where([['product_name', 'like', '%' . $request->search . '%']]);
         }
         
         if ($request->category_id) {
-            $query->where('category_id', $request->category_id);
+            $query->where(['category_id' => $request->category_id]);
         }
         
         if ($request->filled('is_active')) {
-            $query->where('is_active', $request->is_active);
+            $query->where(['is_active' => $request->is_active]);
         }
         
-        $products = $query->orderBy('product_name')
+        $products = $query->orderByRaw('product_name')
             ->paginate(10)
             ->withQueryString();
             
-        $categories = Category::orderBy('category_name')->get();
+        $categories = Category::orderByRaw('category_name')->get();
         
         return view('produk.index', compact('products', 'categories'));
     }
@@ -43,10 +43,10 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $categories = Category::orderBy('category_name')->get();
+        $categories = Category::orderByRaw('category_name')->get();
         $racks = Rack::with('category')
-            ->where('is_custom_box', false)
-            ->orderBy('rack_code')
+            ->where(['is_custom_box' => false])
+            ->orderByRaw('rack_code')
             ->get();
             
         return view('produk.create', compact('categories', 'racks'));
@@ -84,10 +84,10 @@ class ProductController extends Controller
     public function edit($id)
     {
         $product = Product::findOrFail($id);
-        $categories = Category::orderBy('category_name')->get();
+        $categories = Category::orderByRaw('category_name')->get();
         $racks = Rack::with('category')
-            ->where('is_custom_box', false)
-            ->orderBy('rack_code')
+            ->where(['is_custom_box' => false])
+            ->orderByRaw('rack_code')
             ->get();
             
         return view('produk.edit', compact('product', 'categories', 'racks'));
@@ -145,14 +145,14 @@ class ProductController extends Controller
 
     public function search(Request $request)
     {
-        $q = $request->get('q', '');
+        $q = $request->input('q', '');
         $results = collect();
         
         if ($q !== '') {
             $results = Product::with(['category', 'rack'])
-                ->where('is_active', true)
-                ->where('product_name', 'like', '%' . $q . '%')
-                ->orderBy('product_name')
+                ->where(['is_active' => true])
+                ->where([['product_name', 'like', '%' . $q . '%']])
+                ->orderByRaw('product_name')
                 ->limit(20)
                 ->get();
         }

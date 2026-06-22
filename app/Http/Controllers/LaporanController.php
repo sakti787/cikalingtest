@@ -30,13 +30,13 @@ class LaporanController extends Controller
                 DB::raw('SUM(total_amount) as omset')
             )
             ->groupBy('tanggal')
-            ->orderBy('tanggal')
+            ->orderByRaw('tanggal')
             ->get();
             
         foreach ($harian as $row) {
             $hpp = TransactionItem::whereHas('transaction', fn($q) => 
                 $q->whereDate('transaction_date', $row->tanggal))
-                ->join('products', 'transaction_items.product_id', '=', 'products.product_id')
+                ->join('products', fn($join) => $join->on('transaction_items.product_id', '=', 'products.product_id'))
                 ->sum(DB::raw('transaction_items.quantity * products.buy_price'));
                 
             $row->hpp = (float) $hpp;
@@ -46,10 +46,10 @@ class LaporanController extends Controller
         }
 
         // QUERY 2 — summary
-        $totalOmset   = $harian->sum('omset');
-        $totalProfit  = $harian->sum('profit');
+        $totalOmset   = $harian->sum(fn($row) => $row->omset);
+        $totalProfit  = $harian->sum(fn($row) => $row->profit);
         $totalTrx     = Transaction::whereBetween('transaction_date', [$start, $end])->count();
-        $avgMargin    = $harian->avg('margin') ?? 0;
+        $avgMargin    = $harian->avg(fn($row) => $row->margin) ?? 0;
         
         $prevOmset    = Transaction::whereBetween('transaction_date', [$prevStart, $prevEnd])
             ->sum('total_amount');
@@ -83,7 +83,7 @@ class LaporanController extends Controller
      */
     public function index(Request $request)
     {
-        $bulan = $request->get('bulan', now()->format('Y-m'));
+        $bulan = $request->input('bulan', now()->format('Y-m'));
         $data  = $this->getLaporanData($bulan);
         
         return view('laporan.index', $data + ['bulan' => $bulan]);
@@ -94,7 +94,7 @@ class LaporanController extends Controller
      */
     public function exportPdf(Request $request)
     {
-        $bulan = $request->get('bulan', now()->format('Y-m'));
+        $bulan = $request->input('bulan', now()->format('Y-m'));
         $data  = $this->getLaporanData($bulan);
         $bulanLabel = Carbon::createFromFormat('Y-m', $bulan)
             ->translatedFormat('F Y');

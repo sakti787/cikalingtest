@@ -30,7 +30,7 @@ class DashboardController extends Controller
         // 3. Profit Hari Ini
         $profitHariIni = TransactionItem::whereHas('transaction', fn($q) => 
             $q->whereDate('transaction_date', $today))
-            ->join('products', 'transaction_items.product_id', '=', 'products.product_id')
+            ->join('products', fn($join) => $join->on('transaction_items.product_id', '=', 'products.product_id'))
             ->selectRaw('SUM((transaction_items.unit_price - products.buy_price) * transaction_items.quantity) as profit')
             ->value('profit') ?? 0;
 
@@ -38,18 +38,18 @@ class DashboardController extends Controller
         $jumlahTransaksi = Transaction::whereDate('transaction_date', $today)->count();
 
         // 5. Jumlah Produk Stok Rendah
-        $produkStokRendah = Product::where('is_active', true)
+        $produkStokRendah = Product::where(['is_active' => true])
             ->whereColumn('stock', '<=', 'min_stock')
             ->count();
 
         // 6. Transaksi Terbaru (Limit 5)
         $transaksiTerbaru = Transaction::with('kasir')
-            ->orderBy('created_at', 'desc')
+            ->latest()
             ->limit(5)->get();
 
         // 7. Produk Terlaris (Limit 5)
         $produkTerlaris = Product::withSum('transactionItems as total_terjual', 'quantity')
-            ->orderByDesc('total_terjual')
+            ->orderByRaw('total_terjual DESC')
             ->limit(5)->get();
 
         return view('dashboard.index', compact(

@@ -14,13 +14,13 @@ class InputBarangController extends Controller
      */
     public function create()
     {
-        $categories = Category::orderBy('category_name')->get();
+        $categories = Category::orderByRaw('category_name')->get();
         $racks = Rack::with('category')
-            ->where('is_custom_box', false)
+            ->where(['is_custom_box' => false])
             ->withCount(['products as active_count' => fn($q) => 
-                $q->where('is_active', true)
+                $q->where(['is_active' => true])
             ])
-            ->orderBy('rack_code')
+            ->orderByRaw('rack_code')
             ->get()
             ->map(fn($r) => [
                 'id'          => $r->rack_id,

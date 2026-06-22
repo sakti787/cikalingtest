@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Transaction;
+use App\Models\TransactionItem;
+use App\Models\StockAlert;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
@@ -14,8 +18,8 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $products = Product::with(['category', 'rack'])
-            ->where('is_active', true)
-            ->orderBy('product_name')
+            ->where(['is_active' => true])
+            ->orderByRaw('product_name')
             ->get()
             ->map(fn($p) => [
                 'id'        => $p->product_id,
@@ -31,7 +35,7 @@ class TransactionController extends Controller
             return response()->json($products);
         }
             
-        $categories = Category::orderBy('category_name')->get();
+        $categories = Category::orderByRaw('category_name')->get();
         
         return view('transaksi.index', compact('products', 'categories'));
     }
@@ -52,10 +56,10 @@ class TransactionController extends Controller
         ]);
 
         try {
-            $transactionId = \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            $transactionId = DB::transaction(function () use ($request) {
                 // 1. Validate stock for all items first
                 foreach ($request->items as $item) {
-                    $product = \App\Models\Product::lockForUpdate()->findOrFail($item['product_id']);
+                    $product = Product::lockForUpdate()->findOrFail($item['product_id']);
                     if ($product->stock < $item['quantity']) {
                         throw new \Exception('Stok ' . $product->product_name . ' tidak cukup. Tersisa: ' . $product->stock);
                     }
@@ -67,12 +71,12 @@ class TransactionController extends Controller
                     $itemsTotal += $item['quantity'] * $item['unit_price'];
                 }
                 
-                $discount = floatval($request->get('discount', 0));
+                $discount = floatval($request->input('discount', 0));
                 $total = max(0, $itemsTotal - $discount);
                 $isSpecial = $request->is_special_price || $discount > 0;
 
                 // 3. Create transaction
-                $transaction = \App\Models\Transaction::create([
+                $transaction = Transaction::create([
                     'kasir_id' => auth()->id(),
                     'transaction_date' => now(),
                     'total_amount' => $total,
@@ -82,9 +86,9 @@ class TransactionController extends Controller
 
                 // 4. Create items + update stock
                 foreach ($request->items as $item) {
-                    $product = \App\Models\Product::lockForUpdate()->findOrFail($item['product_id']);
+                    $product = Product::lockForUpdate()->findOrFail($item['product_id']);
                     
-                    \App\Models\TransactionItem::create([
+                    TransactionItem::create([
                         'transaction_id' => $transaction->transaction_id,
                         'product_id' => $item['product_id'],
                         'quantity' => $item['quantity'],
@@ -97,13 +101,13 @@ class TransactionController extends Controller
 
                     // 5. Check and create stock alert
                     if ($product->stock <= $product->min_stock) {
-                        $existingAlert = \App\Models\StockAlert::where('product_id', $product->product_id)
+                        $existingAlert = StockAlert::where(['product_id' => $product->product_id])
                             ->whereDate('alert_date', today())
-                            ->where('is_dismissed', false)
+                            ->where(['is_dismissed' => false])
                             ->first();
 
                         if (!$existingAlert) {
-                            \App\Models\StockAlert::create([
+                            StockAlert::create([
                                 'product_id' => $product->product_id,
                                 'alert_date' => now(),
                                 'current_stock' => $product->stock,
@@ -133,7 +137,7 @@ class TransactionController extends Controller
      */
     public function nota($id)
     {
-        $transaction = \App\Models\Transaction::with([
+        $transaction = Transaction::with([
             'kasir',
             'items.product'
         ])->findOrFail($id);

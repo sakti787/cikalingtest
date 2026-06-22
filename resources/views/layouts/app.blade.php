@@ -329,10 +329,10 @@
 
         <!-- Stock alert banner (if low stock exists) -->
         @php
-            $lowStockCount = \App\Models\Product::where('is_active', true)
+            $lowStockCount = \App\Models\Product::where(['is_active' => true])
                 ->whereColumn('stock', '<=', 'min_stock')
                 ->count();
-            $lowStockNames = \App\Models\Product::where('is_active', true)
+            $lowStockNames = \App\Models\Product::where(['is_active' => true])
                 ->whereColumn('stock', '<=', 'min_stock')
                 ->limit(3)
                 ->pluck('product_name')
