@@ -375,32 +375,6 @@
                         </div>
                     </div>
 
-                    <!-- Cash Input & Suggestions -->
-                    <div class="space-y-4 flex-1 overflow-y-auto pr-1">
-
-                        <!-- Discount Input (Pelanggan Spesial) -->
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                            <div class="flex items-center justify-between">
-                                <label for="discount_amount"
-                                    class="text-slate-700 text-[10px] font-bold uppercase tracking-wider">Diskon Langsung
-                                    (Pelanggan Spesial)</label>
-                                <span
-                                    class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-md">Nominal
-                                    (Rp)</span>
-                            </div>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 font-extrabold text-sm">
-                                    Rp
-                                </div>
-                                <input type="text" id="discount_amount" x-model="discountAmountFormatted"
-                                    @input="let parsed = parseNumberInput($event.target.value); if (parsed > subtotal) { parsed = subtotal; }; discountAmountFormatted = formatNumberInput(parsed); discountAmount = parsed;"
-                                    class="w-full pl-11 pr-4 h-10 text-base font-bold rounded-lg border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
-                                    placeholder="0">
-                            </div>
-                            <p class="text-[10px] text-slate-400">Nominal diskon langsung dalam Rupiah untuk pelanggan
-                                setia.</p>
-                        </div>
                     <!-- Payment Inputs Container -->
                     <div class="space-y-4 flex-1 overflow-y-auto pr-1">
 

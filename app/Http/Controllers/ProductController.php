@@ -157,7 +157,18 @@ class ProductController extends Controller
 
     public function destroy($id)
     {
-        return redirect()->route('produk.index');
+        $product = Product::findOrFail($id);
+        $productName = $product->product_name;
+        $product->delete();
+        
+        \App\Models\ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'product_delete',
+            'description' => 'Menghapus produk "' . $productName . '"',
+        ]);
+        
+        return redirect()->route('produk.index')
+            ->with('success', 'Produk ' . $productName . ' berhasil dihapus.');
     }
 
     /**
@@ -178,20 +189,21 @@ class ProductController extends Controller
             ->with('success', 'Produk ' . $product->product_name . ' dinonaktifkan.');
     }
 
-    public function search(Request $request)
+    /**
+     * Activate the specified product.
+     */
+    public function activate($id)
     {
-        $q = $request->input('q', '');
-        $results = collect();
+        $product = Product::findOrFail($id);
+        $product->update(['is_active' => true]);
         
-        if ($q !== '') {
-            $results = Product::with(['category', 'rack'])
-                ->where(['is_active' => true])
-                ->where([['product_name', 'like', '%' . $q . '%']])
-                ->orderByRaw('product_name')
-                ->limit(20)
-                ->get();
-        }
+        \App\Models\ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'product_activate',
+            'description' => 'Mengaktifkan produk "' . $product->product_name . '"',
+        ]);
         
-        return view('produk.cari', compact('results', 'q'));
+        return redirect()->back()
+            ->with('success', 'Produk ' . $product->product_name . ' berhasil diaktifkan.');
     }
 }

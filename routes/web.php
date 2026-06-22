@@ -30,17 +30,17 @@ Route::middleware(['auth', 'role:pemilik,kasir'])
             ->name('transaksi.store');
         Route::get('/transaksi/{id}/nota', [TransactionController::class, 'nota'])
             ->name('transaksi.nota');
-        Route::get('/produk/cari', [ProductController::class, 'search'])
-            ->name('produk.search');
+        Route::resource('/produk', ProductController::class);
+        Route::post('/produk/{id}/deactivate', [ProductController::class, 'deactivate'])
+            ->name('produk.deactivate');
+        Route::post('/produk/{id}/activate', [ProductController::class, 'activate'])
+            ->name('produk.activate');
     });
 
 Route::middleware(['auth', 'role:pemilik'])
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
-        Route::resource('/produk', ProductController::class);
-        Route::post('/produk/{id}/deactivate', [ProductController::class, 'deactivate'])
-            ->name('produk.deactivate');
         Route::get('/laporan', [LaporanController::class, 'index'])
             ->name('laporan.index');
         Route::get('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])

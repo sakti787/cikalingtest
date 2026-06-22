@@ -143,7 +143,7 @@
                         </a>
                         <a href="{{ route('produk.index') }}" title="Produk"
                            :class="sidebarOpen ? 'justify-start px-3' : 'justify-center px-0'"
-                           class="flex items-center gap-3 py-2.5 rounded-lg transition-all {{ (request()->routeIs('produk.*') && !request()->routeIs('produk.search')) ? 'bg-green-50 text-green-700 font-medium' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                           class="flex items-center gap-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('produk.*') ? 'bg-green-50 text-green-700 font-medium' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                             <!-- package SVG -->
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"></path>
@@ -213,14 +213,14 @@
                             </svg>
                             <span x-show="sidebarOpen">Input Transaksi</span>
                         </a>
-                        <a href="{{ route('produk.search') }}" title="Cari Produk"
+                        <a href="{{ route('produk.index') }}" title="Kelola Produk"
                            :class="sidebarOpen ? 'justify-start px-3' : 'justify-center px-0'"
-                           class="flex items-center gap-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('produk.search') ? 'bg-green-50 text-green-700 font-medium' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                           class="flex items-center gap-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('produk.*') ? 'bg-green-50 text-green-700 font-medium' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
                             <!-- package SVG -->
                             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"></path>
                             </svg>
-                            <span x-show="sidebarOpen">Cari Produk</span>
+                            <span x-show="sidebarOpen">Kelola Produk</span>
                         </a>
                         <a href="{{ route('rak.index') }}" title="Peta Rak"
                            :class="sidebarOpen ? 'justify-start px-3' : 'justify-center px-0'"

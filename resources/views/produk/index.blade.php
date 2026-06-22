@@ -4,7 +4,16 @@
 @section('page-title', 'Kelola Produk')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ 
+    showDeleteModal: false, 
+    deleteRoute: '', 
+    productName: '',
+    confirmDelete(route, name) {
+        this.deleteRoute = route;
+        this.productName = name;
+        this.showDeleteModal = true;
+    }
+}">
 
     <!-- Section Header Row -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -162,25 +171,37 @@
                                     @endif
                                 </td>
 
-                                <!-- Action Buttons -->
-                                <td class="text-right">
-                                    <div class="inline-flex items-center gap-2">
-                                        <!-- Edit button -->
-                                        <a href="{{ route('produk.edit', $product->product_id) }}" class="btn-secondary px-3 py-1 text-sm min-h-[32px] items-center">
-                                            Edit
-                                        </a>
+                                 <!-- Action Buttons -->
+                                 <td class="text-right">
+                                     <div class="inline-flex items-center gap-2">
+                                         <!-- Edit button -->
+                                         <a href="{{ route('produk.edit', $product->product_id) }}" class="btn-secondary px-3 py-1 text-sm min-h-[32px] items-center">
+                                             Edit
+                                         </a>
 
-                                        <!-- Deactivate Button -->
-                                        @if($product->is_active)
-                                            <form action="{{ route('produk.deactivate', $product->product_id) }}" method="POST" class="inline" x-data>
-                                                @csrf
-                                                <button type="submit" x-on:click.prevent="if(confirm('Apakah Anda yakin ingin menonaktifkan produk ini?')) $el.closest('form').submit()" class="btn-danger px-3 py-1 text-sm min-h-[32px] cursor-pointer items-center">
-                                                    Nonaktifkan
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </div>
-                                </td>
+                                         <!-- Status Toggle Button -->
+                                         @if($product->is_active)
+                                             <form action="{{ route('produk.deactivate', $product->product_id) }}" method="POST" class="inline" x-data>
+                                                 @csrf
+                                                 <button type="submit" x-on:click.prevent="if(confirm('Apakah Anda yakin ingin menonaktifkan produk ini?')) $el.closest('form').submit()" class="btn-secondary px-3 py-1 text-sm min-h-[32px] cursor-pointer items-center">
+                                                     Nonaktifkan
+                                                 </button>
+                                             </form>
+                                         @else
+                                             <form action="{{ route('produk.activate', $product->product_id) }}" method="POST" class="inline" x-data>
+                                                 @csrf
+                                                 <button type="submit" x-on:click.prevent="if(confirm('Apakah Anda yakin ingin mengaktifkan kembali produk ini?')) $el.closest('form').submit()" class="bg-green-600 hover:bg-green-700 text-white rounded-lg px-3 py-1 text-sm min-h-[32px] cursor-pointer inline-flex items-center transition-colors font-medium">
+                                                     Aktifkan
+                                                 </button>
+                                             </form>
+                                         @endif
+
+                                         <!-- Delete Button -->
+                                         <button type="button" @click="confirmDelete('{{ route('produk.destroy', $product->product_id) }}', '{{ addslashes($product->product_name) }}')" class="btn-danger px-3 py-1 text-sm min-h-[32px] cursor-pointer items-center">
+                                             Hapus
+                                         </button>
+                                     </div>
+                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -218,6 +239,50 @@
                 @endif
             </div>
         @endif
+    </div>
+
+    <!-- Beautiful Delete Confirmation Modal -->
+    <div x-show="showDeleteModal" 
+         class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         style="display: none;">
+        
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full p-6 space-y-6" @click.away="showDeleteModal = false">
+            
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                    <!-- warning SVG -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"></path>
+                    </svg>
+                </div>
+                <div class="space-y-1.5">
+                    <h3 class="text-lg font-bold text-slate-900">Hapus Produk Permanen?</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        Apakah Anda yakin ingin menghapus produk <span class="font-bold text-slate-950" x-text="productName"></span> secara permanen dari sistem? Tindakan ini tidak dapat dibatalkan.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button type="button" @click="showDeleteModal = false" class="btn-secondary min-h-[38px] px-4 py-2 text-sm cursor-pointer">
+                    Batal
+                </button>
+                <form :action="deleteRoute" method="POST" class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn-danger bg-red-600 hover:bg-red-700 text-white min-h-[38px] px-4 py-2 text-sm cursor-pointer rounded-lg transition-colors font-medium">
+                        Ya, Hapus Produk
+                    </button>
+                </form>
+            </div>
+            
+        </div>
     </div>
 
 </div>

@@ -4,7 +4,16 @@
 @section('page-title', 'Kelola Karyawan & Absensi')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ 
+    showDeleteModal: false, 
+    deleteRoute: '', 
+    employeeName: '',
+    confirmDelete(route, name) {
+        this.deleteRoute = route;
+        this.employeeName = name;
+        this.showDeleteModal = true;
+    }
+}">
 
     <!-- Section Header Row -->
     <div>
@@ -107,16 +116,12 @@
                                         {{ $emp->created_at ? $emp->created_at->format('d M Y, H:i') : '-' }}
                                     </td>
                                     <td class="text-right">
-                                        <form action="{{ route('karyawan.destroy', $emp->user_id) }}" method="POST" class="inline" x-data>
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" x-on:click.prevent="if(confirm('Apakah Anda yakin ingin menghapus akun karyawan {{ $emp->username }}?')) $el.closest('form').submit()" class="btn-danger px-3 py-1.5 text-sm min-h-[36px] cursor-pointer items-center inline-flex gap-1.5">
-                                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <button type="button" @click="confirmDelete('{{ route('karyawan.destroy', $emp->user_id) }}', '{{ addslashes($emp->username) }}')" class="btn-danger px-3 py-1.5 text-sm min-h-[36px] cursor-pointer items-center inline-flex gap-1.5">
+                                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"></path>
                                                 </svg>
                                                 <span>Hapus</span>
                                             </button>
-                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
@@ -205,6 +210,50 @@
                 <p class="text-slate-500 mt-1 text-sm">Absensi akan otomatis tercatat saat karyawan masuk/login ke dalam sistem</p>
             </div>
         @endif
+    </div>
+
+    <!-- Beautiful Delete Confirmation Modal -->
+    <div x-show="showDeleteModal" 
+         class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         style="display: none;">
+        
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full p-6 space-y-6" @click.away="showDeleteModal = false">
+            
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                    <!-- warning SVG -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"></path>
+                    </svg>
+                </div>
+                <div class="space-y-1.5">
+                    <h3 class="text-lg font-bold text-slate-900">Hapus Akun Karyawan?</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        Apakah Anda yakin ingin menghapus akun karyawan <span class="font-bold text-slate-950" x-text="employeeName"></span>? Karyawan ini tidak akan bisa login lagi ke sistem.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button type="button" @click="showDeleteModal = false" class="btn-secondary min-h-[38px] px-4 py-2 text-sm cursor-pointer">
+                    Batal
+                </button>
+                <form :action="deleteRoute" method="POST" class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn-danger bg-red-600 hover:bg-red-700 text-white min-h-[38px] px-4 py-2 text-sm cursor-pointer rounded-lg transition-colors font-medium">
+                        Ya, Hapus Akun
+                    </button>
+                </form>
+            </div>
+            
+        </div>
     </div>
 
 </div>
