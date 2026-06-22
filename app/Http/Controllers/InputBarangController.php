@@ -58,7 +58,7 @@ class InputBarangController extends Controller
         // Default sell_price = buy_price * 1.3 (30% margin) rounded to hundreds
         $sellPrice = round($request->buy_price * 1.3, -2);
         
-        Product::create([
+        $product = Product::create([
             'product_name' => $request->product_name,
             'category_id'  => $request->category_id,
             'rack_id'      => $request->rack_id,
@@ -67,6 +67,12 @@ class InputBarangController extends Controller
             'stock'        => $request->stock,
             'min_stock'    => 10, // default, pemilik can change later
             'is_active'    => true,
+        ]);
+
+        \App\Models\ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'product_add',
+            'description' => 'Menginput barang baru "' . $request->product_name . '" dengan stok awal ' . $request->stock,
         ]);
         
         if ($categoryMismatch) {

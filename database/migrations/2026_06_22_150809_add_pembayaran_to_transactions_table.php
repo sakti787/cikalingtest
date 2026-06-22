@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->increments('user_id');
-            $table->string('username', 50)->unique();
-            $table->string('password_hash', 255);
-            $table->enum('role', ['pemilik', 'kasir']);
-            $table->timestamp('created_at')->useCurrent();
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->string('pembayaran', 20)->default('cash'); // 'cash' or 'cashless'
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->dropColumn('pembayaran');
+        });
     }
 };

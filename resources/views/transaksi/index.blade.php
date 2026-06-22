@@ -401,39 +401,102 @@
                             <p class="text-[10px] text-slate-400">Nominal diskon langsung dalam Rupiah untuk pelanggan
                                 setia.</p>
                         </div>
-                        <div>
-                            <label for="cash_paid"
-                                class="form-label text-slate-600 text-[10px] font-bold uppercase tracking-wider mb-2">UANG
-                                TUNAI DITERIMA</label>
-                            <div class="relative">
-                                <div
-                                    class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 font-extrabold text-base">
-                                    Rp
-                                </div>
-                                <input type="text" id="cash_paid" x-model="cashPaidFormatted"
-                                    @input="cashPaidFormatted = formatNumberInput($event.target.value); cashPaid = parseNumberInput(cashPaidFormatted)"
-                                    class="w-full pl-11 pr-4 h-12 text-lg font-black rounded-xl border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all shadow-sm"
-                                    placeholder="0">
+                    <!-- Payment Inputs Container -->
+                    <div class="space-y-4 flex-1 overflow-y-auto pr-1">
+
+                        <!-- Metode Pembayaran Selector -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <label class="text-slate-600 text-[10px] font-bold uppercase tracking-wider block mb-2.5">Metode Pembayaran</label>
+                            <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+                                <button type="button" @click="setPaymentMethod('cash')"
+                                    :class="pembayaran === 'cash' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+                                    class="py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer select-none flex items-center justify-center gap-1.5">
+                                    💵 Tunai / Cash
+                                </button>
+                                <button type="button" @click="setPaymentMethod('cashless')"
+                                    :class="pembayaran === 'cashless' ? 'bg-green-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+                                    class="py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer select-none flex items-center justify-center gap-1.5">
+                                    💳 Cashless / QRIS
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Cash Suggestions -->
-                        <div class="grid grid-cols-2 gap-2">
-                            <template x-for="suggestion in cashSuggestions" :key="suggestion">
-                                <button type="button" @click="cashPaid = suggestion; cashPaidFormatted = formatNumberInput(suggestion)"
-                                    :class="cashPaid === suggestion ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300'"
-                                    class="py-2.5 text-xs font-bold border rounded-xl shadow-sm transition-all cursor-pointer select-none">
-                                    <span x-text="suggestion === total ? 'Uang Pas' : formatRp(suggestion)"></span>
-                                </button>
-                            </template>
+                        <!-- Discount Input (Pelanggan Spesial) -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label for="discount_amount"
+                                    class="text-slate-700 text-[10px] font-bold uppercase tracking-wider">Diskon Langsung
+                                    (Pelanggan Spesial)</label>
+                                <span
+                                    class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-md">Nominal
+                                    (Rp)</span>
+                            </div>
+                            <div class="relative">
+                                <div
+                                    class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 font-extrabold text-sm">
+                                    Rp
+                                </div>
+                                <input type="text" id="discount_amount" x-model="discountAmountFormatted"
+                                    @input="let parsed = parseNumberInput($event.target.value); if (parsed > subtotal) { parsed = subtotal; }; discountAmountFormatted = formatNumberInput(parsed); discountAmount = parsed; if (pembayaran === 'cashless') { cashPaid = total; cashPaidFormatted = formatNumberInput(total); }"
+                                    class="w-full pl-11 pr-4 h-10 text-base font-bold rounded-lg border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+                                    placeholder="0">
+                            </div>
+                            <p class="text-[10px] text-slate-400">Nominal diskon langsung dalam Rupiah untuk pelanggan
+                                setia.</p>
                         </div>
 
-                        <!-- Return Change -->
-                        <div class="p-4 rounded-xl border transition-all duration-200"
-                            :class="cashPaid >= total ? 'bg-green-50 border-green-200 text-green-800 shadow-sm' : 'bg-slate-100 border-slate-200 text-slate-500'">
-                            <span class="text-[9px] font-bold uppercase tracking-wider block mb-1">KEMBALIAN</span>
-                            <span class="text-xl font-extrabold tracking-tight"
-                                x-text="cashPaid >= total ? formatRp(cashPaid - total) : 'Rp 0'"></span>
+                        <!-- Cash Payment specific inputs -->
+                        <div x-show="pembayaran === 'cash'" class="space-y-4" x-transition>
+                            <div>
+                                <label for="cash_paid"
+                                    class="form-label text-slate-600 text-[10px] font-bold uppercase tracking-wider mb-2">UANG
+                                    TUNAI DITERIMA</label>
+                                <div class="relative">
+                                    <div
+                                        class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 font-extrabold text-base">
+                                        Rp
+                                    </div>
+                                    <input type="text" id="cash_paid" x-model="cashPaidFormatted"
+                                        @input="cashPaidFormatted = formatNumberInput($event.target.value); cashPaid = parseNumberInput(cashPaidFormatted)"
+                                        class="w-full pl-11 pr-4 h-12 text-lg font-black rounded-xl border border-slate-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all shadow-sm"
+                                        placeholder="0">
+                                </div>
+                            </div>
+
+                            <!-- Cash Suggestions -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <template x-for="suggestion in cashSuggestions" :key="suggestion">
+                                    <button type="button" @click="cashPaid = suggestion; cashPaidFormatted = formatNumberInput(suggestion)"
+                                        :class="cashPaid === suggestion ? 'bg-green-600 text-white border-green-600 shadow-sm' : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300'"
+                                        class="py-2.5 text-xs font-bold border rounded-xl shadow-sm transition-all cursor-pointer select-none">
+                                        <span x-text="suggestion === total ? 'Uang Pas' : formatRp(suggestion)"></span>
+                                    </button>
+                                </template>
+                            </div>
+
+                            <!-- Return Change -->
+                            <div class="p-4 rounded-xl border transition-all duration-200"
+                                :class="cashPaid >= total ? 'bg-green-50 border-green-200 text-green-800 shadow-sm' : 'bg-slate-100 border-slate-200 text-slate-500'">
+                                <span class="text-[9px] font-bold uppercase tracking-wider block mb-1">KEMBALIAN</span>
+                                <span class="text-xl font-extrabold tracking-tight"
+                                    x-text="cashPaid >= total ? formatRp(cashPaid - total) : 'Rp 0'"></span>
+                            </div>
+                        </div>
+
+                        <!-- Cashless Notice Widget -->
+                        <div x-show="pembayaran === 'cashless'" class="p-4 rounded-xl border border-green-200 bg-green-50/50 text-green-800 shadow-sm space-y-2.5" x-transition>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] font-bold uppercase tracking-wider block text-green-700">Pembayaran Cashless</span>
+                                <span class="bg-green-600 text-white text-[9px] font-bold uppercase px-2 py-0.5 rounded-md">QRIS / EDC</span>
+                            </div>
+                            <p class="text-xs font-semibold leading-relaxed">Silakan proses transaksi non-tunai melalui QRIS atau mesin EDC sebesar <span class="font-extrabold text-green-950 underline" x-text="formatRp(total)"></span>.</p>
+                            <div class="flex items-center gap-2 pt-1">
+                                <span class="relative flex h-2.5 w-2.5">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                                </span>
+                                <span class="text-[10px] text-green-700 font-extrabold uppercase tracking-wider">Menunggu Pembayaran Non-Tunai</span>
+                            </div>
                         </div>
 
                         <!-- Opsi Nota Toggle -->
@@ -458,8 +521,8 @@
                         </div>
 
                         <button type="button" @click="submitTransaction()"
-                            x-bind:disabled="isProcessing || !isAllChecked() || (cashPaid !== '' && cashPaid < total)"
-                            :class="(isProcessing || !isAllChecked() || (cashPaid !== '' && cashPaid < total)) ? 'opacity-50 cursor-not-allowed bg-green-400' : 'bg-green-600 hover:bg-green-700 active:bg-green-800 hover:shadow-lg'"
+                            x-bind:disabled="isProcessing || !isAllChecked() || (pembayaran === 'cash' && (cashPaid === '' || cashPaid < total))"
+                            :class="(isProcessing || !isAllChecked() || (pembayaran === 'cash' && (cashPaid === '' || cashPaid < total))) ? 'opacity-50 cursor-not-allowed bg-green-400' : 'bg-green-600 hover:bg-green-700 active:bg-green-800 hover:shadow-lg'"
                             class="btn-primary w-full justify-center min-h-[48px] text-white text-base font-bold rounded-xl transition-all shadow-md cursor-pointer">
                             <span x-text="isProcessing ? 'Memproses...' : '✓ Selesaikan Transaksi'">✓ Selesaikan
                                 Transaksi</span>
@@ -498,6 +561,7 @@
                     printNota: true,
                     discountAmount: 0,
                     discountAmountFormatted: '',
+                    pembayaran: 'cash',
 
                     init() {
                         this.filteredProducts = this.products;
@@ -581,7 +645,19 @@
                         this.cashPaidFormatted = '';
                         this.discountAmount = 0;
                         this.discountAmountFormatted = '';
+                        this.pembayaran = 'cash';
                         this.showConfirmModal = true;
+                    },
+
+                    setPaymentMethod(method) {
+                        this.pembayaran = method;
+                        if (method === 'cashless') {
+                            this.cashPaid = this.total;
+                            this.cashPaidFormatted = this.formatNumberInput(this.total);
+                        } else {
+                            this.cashPaid = '';
+                            this.cashPaidFormatted = '';
+                        }
                     },
 
                     toggleCheckItem(id) {
@@ -635,6 +711,9 @@
                     },
 
                     submitTransaction() {
+                        if (this.pembayaran === 'cashless') {
+                            this.cashPaid = this.total;
+                        }
                         this.processPayment(this.printNota);
                     },
 
@@ -661,6 +740,7 @@
                                     printed_nota: printNota,
                                     is_special_price: (Number(this.discountAmount) || 0) > 0,
                                     discount: Number(this.discountAmount) || 0,
+                                    pembayaran: this.pembayaran,
                                 })
                             });
 

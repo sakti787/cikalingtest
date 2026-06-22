@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Table(name: 'transactions', key: 'transaction_id', timestamps: true)]
-#[Fillable(['kasir_id', 'transaction_date', 'total_amount', 'is_special_price', 'printed_nota'])]
+#[Fillable(['kasir_id', 'transaction_date', 'total_amount', 'is_special_price', 'printed_nota', 'pembayaran'])]
 class Transaction extends Model
 {
     /**

@@ -98,6 +98,10 @@
                 <span>Kasir:</span>
                 <span class="font-bold uppercase">{{ $transaction->kasir->username }}</span>
             </div>
+            <div class="flex justify-between">
+                <span>Pembayaran:</span>
+                <span class="font-bold uppercase">{{ $transaction->pembayaran }}</span>
+            </div>
         </div>
 
         <div class="receipt-separator"></div>

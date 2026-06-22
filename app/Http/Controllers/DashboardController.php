@@ -52,6 +52,12 @@ class DashboardController extends Controller
             ->orderByRaw('total_terjual DESC')
             ->limit(5)->get();
 
+        // 8. Aktivitas Terbaru (Limit 10)
+        $recentActivities = \App\Models\ActivityLog::with('user')
+            ->latest('log_id')
+            ->limit(10)
+            ->get();
+
         return view('dashboard.index', compact(
             'omsetHariIni',
             'omsetKemarin',
@@ -59,7 +65,8 @@ class DashboardController extends Controller
             'jumlahTransaksi',
             'produkStokRendah',
             'transaksiTerbaru',
-            'produkTerlaris'
+            'produkTerlaris',
+            'recentActivities'
         ));
     }
 }

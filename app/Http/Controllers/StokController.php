@@ -75,6 +75,12 @@ class StokController extends Controller
         $old = $product->min_stock;
         $product->update(['min_stock' => $request->min_stock]);
         
+        \App\Models\ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'min_stock_update',
+            'description' => 'Mengubah batas minimum stok untuk produk "' . $product->product_name . '" dari ' . $old . ' menjadi ' . $request->min_stock,
+        ]);
+        
         return redirect()->route('stok.index')
             ->with('success', "Min stok {$product->product_name} diubah dari {$old} → {$request->min_stock}.");
     }

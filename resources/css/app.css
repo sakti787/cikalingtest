@@ -56,6 +56,7 @@
   .badge-red    { @apply bg-red-100 text-red-700 rounded-full px-3 py-1 text-sm font-medium; }
   .badge-yellow { @apply bg-amber-100 text-amber-700 rounded-full px-3 py-1 text-sm font-medium; }
   .badge-gray   { @apply bg-slate-100 text-slate-600 rounded-full px-3 py-1 text-sm font-medium; }
+  .badge-blue   { @apply bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-sm font-medium; }
   .table-base {
     @apply w-full text-left border-collapse;
   }

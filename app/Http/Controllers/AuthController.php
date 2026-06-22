@@ -42,6 +42,18 @@ class AuthController extends Controller
         Auth::login($user);
         session(['last_activity' => time()]);
 
+        if ($user->role !== 'pemilik') {
+            \App\Models\Attendance::create([
+                'user_id' => $user->user_id,
+                'login_at' => now(),
+            ]);
+            \App\Models\ActivityLog::create([
+                'user_id' => $user->user_id,
+                'activity_type' => 'login',
+                'description' => 'Melakukan login dan tercatat absen masuk.',
+            ]);
+        }
+
         return $this->redirectBasedOnRole($user);
     }
 
@@ -67,8 +79,6 @@ class AuthController extends Controller
                 return redirect('/dashboard');
             case 'kasir':
                 return redirect('/transaksi');
-            case 'gudang':
-                return redirect('/peta-rak');
             default:
                 return redirect('/login');
         }

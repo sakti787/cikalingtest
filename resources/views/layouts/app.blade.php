@@ -113,8 +113,6 @@
                     <span class="badge-green">Pemilik</span>
                 @elseif($role === 'kasir')
                     <span class="badge-yellow">Kasir</span>
-                @elseif($role === 'gudang')
-                    <span class="badge-gray">Gudang</span>
                 @endif
             </div>
         </div>
@@ -151,6 +149,15 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"></path>
                             </svg>
                             <span x-show="sidebarOpen">Produk</span>
+                        </a>
+                        <a href="{{ route('karyawan.index') }}" title="Kelola Karyawan"
+                           :class="sidebarOpen ? 'justify-start px-3' : 'justify-center px-0'"
+                           class="flex items-center gap-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('karyawan.*') ? 'bg-green-50 text-green-700 font-medium' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <!-- users SVG -->
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"></path>
+                            </svg>
+                            <span x-show="sidebarOpen">Karyawan</span>
                         </a>
                     </div>
                 </div>
@@ -223,30 +230,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503-3.485 2.197-1.099A2.25 2.25 0 0 0 21 10.682V4.912a2.249 2.249 0 0 0-2.835-2.148L15 3.75l-6-1.5-4.233 1.411A2.25 2.25 0 0 0 3 4.912v5.77c0 .866.497 1.66 1.282 2.052L9 15.75l6 1.5 5.233-1.744c.46-.154.767-.585.767-1.069V10.682Z"></path>
                             </svg>
                             <span x-show="sidebarOpen">Peta Rak</span>
-                        </a>
-                    </div>
-                </div>
-            @elseif($role === 'gudang')
-                <div>
-                    <div x-show="sidebarOpen" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-3">GUDANG</div>
-                    <div class="space-y-1">
-                        <a href="{{ route('barang.create') }}" title="Input Barang Baru"
-                           :class="sidebarOpen ? 'justify-start px-3' : 'justify-center px-0'"
-                           class="flex items-center gap-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('barang.*') ? 'bg-green-50 text-green-700 font-medium' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                            <!-- package SVG -->
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"></path>
-                            </svg>
-                            <span x-show="sidebarOpen">Input Barang Baru</span>
-                        </a>
-                        <a href="{{ route('rak.index') }}" title="Peta Rak Digital"
-                           :class="sidebarOpen ? 'justify-start px-3' : 'justify-center px-0'"
-                           class="flex items-center gap-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('rak.index') ? 'bg-green-50 text-green-700 font-medium' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                            <!-- map SVG -->
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503-3.485 2.197-1.099A2.25 2.25 0 0 0 21 10.682V4.912a2.249 2.249 0 0 0-2.835-2.148L15 3.75l-6-1.5-4.233 1.411A2.25 2.25 0 0 0 3 4.912v5.77c0 .866.497 1.66 1.282 2.052L9 15.75l6 1.5 5.233-1.744c.46-.154.767-.585.767-1.069V10.682Z"></path>
-                            </svg>
-                            <span x-show="sidebarOpen">Peta Rak Digital</span>
                         </a>
                     </div>
                 </div>

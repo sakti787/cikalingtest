@@ -8,6 +8,7 @@ use App\Http\Controllers\StokController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\RakController;
 use App\Http\Controllers\InputBarangController;
+use App\Http\Controllers\KaryawanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -52,9 +53,10 @@ Route::middleware(['auth', 'role:pemilik'])
             ->name('stok.update-min');
         Route::post('/stok/dismiss/{id}', [StokController::class, 'dismissAlert'])
             ->name('stok.dismiss');
+        Route::resource('/karyawan', KaryawanController::class)->except(['show', 'edit', 'update']);
     });
 
-Route::middleware(['auth', 'role:pemilik,kasir,gudang'])
+Route::middleware(['auth', 'role:pemilik,kasir'])
     ->group(function () {
         Route::get('/peta-rak', [RakController::class, 'index'])
             ->name('rak.index');
@@ -62,7 +64,7 @@ Route::middleware(['auth', 'role:pemilik,kasir,gudang'])
             ->name('rak.save-layout');
     });
 
-Route::middleware(['auth', 'role:pemilik,gudang'])
+Route::middleware(['auth', 'role:pemilik'])
     ->group(function () {
         Route::get('/input-barang', [InputBarangController::class, 'create'])
             ->name('barang.create');

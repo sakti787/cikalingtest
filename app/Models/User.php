@@ -49,6 +49,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the attendances for the user.
+     */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class, 'user_id', 'user_id');
+    }
+
+    /**
      * Get the transactions for the user (as cashier).
      */
     public function transactions(): HasMany

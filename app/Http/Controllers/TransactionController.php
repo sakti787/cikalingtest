@@ -53,6 +53,7 @@ class TransactionController extends Controller
             'printed_nota' => 'required|boolean',
             'is_special_price' => 'nullable|boolean',
             'discount' => 'nullable|numeric|min:0',
+            'pembayaran' => 'required|string|in:cash,cashless',
         ]);
 
         try {
@@ -82,6 +83,13 @@ class TransactionController extends Controller
                     'total_amount' => $total,
                     'is_special_price' => $isSpecial,
                     'printed_nota' => $request->printed_nota,
+                    'pembayaran' => $request->pembayaran,
+                ]);
+
+                \App\Models\ActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'activity_type' => 'transaction',
+                    'description' => 'Memproses transaksi #' . $transaction->transaction_id . ' sebesar Rp ' . number_format($total, 0, ',', '.') . ' (' . ($request->pembayaran === 'cashless' ? 'Cashless' : 'Cash') . ')',
                 ]);
 
                 // 4. Create items + update stock

@@ -21,7 +21,6 @@
                 $homeRoute = match($role) {
                     'pemilik' => route('dashboard'),
                     'kasir' => route('transaksi.index'),
-                    'gudang' => route('rak.index'),
                     default => route('login'),
                 };
             @endphp

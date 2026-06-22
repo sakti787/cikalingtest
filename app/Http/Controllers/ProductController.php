@@ -67,7 +67,13 @@ class ProductController extends Controller
             'min_stock' => 'required|integer|min:0',
         ]);
         
-        Product::create($validated + ['is_active' => true]);
+        $product = Product::create($validated + ['is_active' => true]);
+        
+        \App\Models\ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'product_add',
+            'description' => 'Menambahkan produk baru "' . $product->product_name . '" dengan stok ' . $product->stock,
+        ]);
         
         return redirect()->route('produk.index')
             ->with('success', 'Produk berhasil ditambahkan.');
@@ -109,6 +115,10 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'min_stock' => 'required|integer|min:0',
         ]);
+
+        $oldStock = $product->stock;
+        $oldPrice = $product->sell_price;
+        $oldName = $product->product_name;
         
         if ($request->sell_price != $product->sell_price) {
             PriceHistory::create([
@@ -121,6 +131,25 @@ class ProductController extends Controller
         }
         
         $product->update($validated);
+
+        $changes = [];
+        if ($oldStock != $request->stock) {
+            $changes[] = "stok berubah dari {$oldStock} menjadi {$request->stock}";
+        }
+        if ($oldPrice != $request->sell_price) {
+            $changes[] = "harga jual berubah dari Rp " . number_format($oldPrice, 0, ',', '.') . " menjadi Rp " . number_format($request->sell_price, 0, ',', '.');
+        }
+        if ($oldName != $request->product_name) {
+            $changes[] = "nama produk diubah dari \"{$oldName}\" menjadi \"{$request->product_name}\"";
+        }
+        
+        if (!empty($changes)) {
+            \App\Models\ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity_type' => 'product_update',
+                'description' => 'Memperbarui produk "' . $product->product_name . '": ' . implode(', ', $changes),
+            ]);
+        }
         
         return redirect()->route('produk.index')
             ->with('success', 'Produk berhasil diperbarui.');
@@ -138,6 +167,12 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $product->update(['is_active' => false]);
+        
+        \App\Models\ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'product_deactivate',
+            'description' => 'Menonaktifkan produk "' . $product->product_name . '"',
+        ]);
         
         return redirect()->back()
             ->with('success', 'Produk ' . $product->product_name . ' dinonaktifkan.');

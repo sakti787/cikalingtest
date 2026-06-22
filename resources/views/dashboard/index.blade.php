@@ -146,6 +146,7 @@
                                 <th>ID</th>
                                 <th>Kasir</th>
                                 <th>Total</th>
+                                <th>Pembayaran</th>
                                 <th>Waktu</th>
                                 <th>Nota</th>
                             </tr>
@@ -161,6 +162,13 @@
                                     </td>
                                     <td class="font-semibold text-slate-900">
                                         Rp {{ number_format($trx->total_amount, 0, ',', '.') }}
+                                    </td>
+                                    <td>
+                                        @if($trx->pembayaran === 'cashless')
+                                            <span class="badge-blue">Cashless</span>
+                                        @else
+                                            <span class="badge-gray">Cash</span>
+                                        @endif
                                     </td>
                                     <td class="text-slate-500 text-sm">
                                         {{ $trx->transaction_date->format('H:i') }}
@@ -232,6 +240,60 @@
             @endif
         </div>
 
+    </div>
+
+    <!-- ROW 3 — Recent Activity -->
+    <div class="card bg-white mt-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Aktivitas Terbaru</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Tindakan pemilik dan karyawan (stok, produk, transaksi, dll.)</p>
+            </div>
+            <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">Realtime</span>
+        </div>
+
+        @if($recentActivities->count() > 0)
+            <div class="relative pl-6 border-l-2 border-slate-100 space-y-6">
+                @foreach($recentActivities as $activity)
+                    <div class="relative">
+                        <!-- Bullet point indicator -->
+                        <span class="absolute -left-[31px] top-1.5 w-3 h-3 rounded-full border-2 border-white shadow-sm
+                            @if($activity->activity_type === 'product_add') bg-green-500
+                            @elseif($activity->activity_type === 'product_update') bg-blue-500
+                            @elseif($activity->activity_type === 'product_deactivate') bg-red-500
+                            @elseif($activity->activity_type === 'min_stock_update') bg-amber-500
+                            @elseif($activity->activity_type === 'transaction') bg-emerald-500
+                            @else bg-slate-500 @endif">
+                        </span>
+                        
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                            <div>
+                                <span class="text-sm font-bold text-slate-800">
+                                    {{ $activity->user->username }} 
+                                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 ml-1">
+                                        {{ $activity->user->role }}
+                                    </span>
+                                </span>
+                                <p class="text-slate-600 mt-1 text-sm leading-relaxed">
+                                    {{ $activity->description }}
+                                </p>
+                            </div>
+                            <span class="text-[11px] text-slate-400 shrink-0 font-medium font-mono" title="{{ $activity->created_at }}">
+                                {{ $activity->created_at->diffForHumans() }}
+                            </span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="flex flex-col items-center justify-center py-12 text-center">
+                <!-- Clock / Activity icon -->
+                <svg class="w-16 h-16 text-slate-300 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+                </svg>
+                <span class="text-slate-400 text-sm font-medium">Belum ada aktivitas tercatat</span>
+            </div>
+        @endif
     </div>
 
 </div>

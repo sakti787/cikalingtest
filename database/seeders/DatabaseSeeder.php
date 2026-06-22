@@ -90,12 +90,6 @@ class DatabaseSeeder extends Seeder
             'password_hash' => bcrypt('kasir123'),
         ]);
 
-        User::create([
-            'username' => 'gudang1',
-            'role' => 'gudang',
-            'password_hash' => bcrypt('gudang123'),
-        ]);
-
         // 4. Products
         Product::create([
             'product_name' => 'Semen Portland 50kg',
